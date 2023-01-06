@@ -67,3 +67,35 @@ describe("GET /contracts", () => {
     expect(res).to.have.status(404);
   });
 });
+
+describe("GET /jobs/unpaid", () => {
+  it("should return all unpaid jobs for active contracts only", async () => {
+    const res = await chai
+      .request(app)
+      .get("/jobs/unpaid")
+      .set("Accept", "application/json")
+      .set("profile_id", 1);
+    expect(res).to.have.status(200);
+    expect(res.body).to.be.an("array");
+    expect(res.body)
+      .excludingEvery(["createdAt", "updatedAt", "Contract"])
+      .to.deep.equal([
+        {
+          id: 2,
+          description: "work",
+          price: 201,
+          paid: null,
+          paymentDate: null,
+          ContractId: 2,
+        },
+      ]);
+  });
+  it("should return 404 if the user has no unpaid jobs", async () => {
+    const res = await chai
+      .request(app)
+      .get("/jobs/unpaid")
+      .set("Accept", "application/json")
+      .set("profile_id", 5);
+    expect(res).to.have.status(404);
+  });
+});
