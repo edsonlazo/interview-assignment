@@ -99,3 +99,30 @@ describe("GET /jobs/unpaid", () => {
     expect(res).to.have.status(404);
   });
 });
+
+describe("POST /jobs/:job_id/pay", () => {
+  it("should return 200 if the job is paid", async () => {
+    const res = await chai
+      .request(app)
+      .post("/jobs/2/pay")
+      .set("Accept", "application/json")
+      .set("profile_id", 1);
+    expect(res).to.have.status(200);
+  });
+  it("should return 404 if the job is not found", async () => {
+    const res = await chai
+      .request(app)
+      .post("/jobs/999/pay")
+      .set("Accept", "application/json")
+      .set("profile_id", 1);
+    expect(res).to.have.status(404);
+  });
+  it("should return 403 if the client's balance is lower than the job price", async () => {
+    const res = await chai
+      .request(app)
+      .post("/jobs/5/pay")
+      .set("Accept", "application/json")
+      .set("profile_id", 7);
+    expect(res).to.have.status(403);
+  });
+});

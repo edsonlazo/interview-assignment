@@ -1,0 +1,10 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "\\\\wsl$\\Ubuntu\\home\\edsonlazo\\workspace\\interview-assignment\\database.sqlite3",
+      "name": "Deel"
+    }
+  ]
+}
