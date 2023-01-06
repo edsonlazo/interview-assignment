@@ -51,9 +51,15 @@ router.post("/jobs/:job_id/pay", getProfile, async (req, res) => {
       },
       transaction: t,
     });
-    if (!job) return res.status(404).end("Job not found");
+    if (!job) {
+      t.rollback();
+      return res.status(404).end("Job not found");
+    }
     //check that the caller is indeed the client
-    if (job.Contract.ClientId != req.profile.id) return res.status(403).end();
+    if (job.Contract.ClientId != req.profile.id) {
+      t.rollback();
+      return res.status(403).end();
+    }
 
     //then we move the balance from client to contractor
     const client = await Profile.findOne({
@@ -64,9 +70,10 @@ router.post("/jobs/:job_id/pay", getProfile, async (req, res) => {
     });
 
     //check if client has enough balance
-    if (client.balance < job.price)
+    if (client.balance < job.price) {
+      t.rollback();
       return res.status(403).end("Not enough balance");
-
+    }
     const contractor = await Profile.findOne({
       where: {
         id: job.Contract.ContractorId,

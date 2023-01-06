@@ -126,3 +126,88 @@ describe("POST /jobs/:job_id/pay", () => {
     expect(res).to.have.status(403);
   });
 });
+
+describe("POST /balances/deposit/:userId", () => {
+  it("should return 200 if the deposit is successful", async () => {
+    const res = await chai
+      .request(app)
+      .post("/balances/deposit/2")
+      .set("Accept", "application/json")
+      .set("profile_id", 2)
+      .send({ amount: 100 });
+    expect(res).to.have.status(200);
+  });
+  it("should return 404 if the user is not found", async () => {
+    const res = await chai
+      .request(app)
+      .post("/balances/deposit/999")
+      .set("Accept", "application/json")
+      .set("profile_id", 2)
+      .send({ amount: 100 });
+    expect(res).to.have.status(404);
+  });
+  it("should return 400 if the amount is more than 25% of his total jobs to pay", async () => {
+    const res = await chai
+      .request(app)
+      .post("/balances/deposit/2")
+      .set("Accept", "application/json")
+      .set("profile_id", 2)
+      .send({ amount: 100000 });
+    expect(res).to.have.status(400);
+  });
+
+  it("should return 400 if the amount is not a number", async () => {
+    const res = await chai
+      .request(app)
+      .post("/balances/deposit/7")
+      .set("Accept", "application/json")
+      .set("profile_id", 7)
+      .send({ amount: "asda" });
+    expect(res).to.have.status(400);
+  });
+});
+
+describe("GET /admin/best-profession?start=<date>&end=<date>", () => {
+  it("should return the best profession in the given period", async () => {
+    const res = await chai
+      .request(app)
+      .get("/admin/best-profession?start=2020-01-01&end=2020-12-31")
+      .set("Accept", "application/json")
+      .set("profile_id", 1);
+    expect(res).to.have.status(200);
+    expect(res.body).to.be.an("object");
+    expect(res.body).to.deep.equal({
+      profession: "Programmer",
+    });
+  });
+});
+
+describe("GET /admin/best-clients?start=<date>&end=<date>&limit=<integer>", () => {
+  it("should return the best clients in the given period", async () => {
+    const res = await chai
+      .request(app)
+      .get("/admin/best-clients?start=2020-01-01&end=2020-12-31&limit=2")
+      .set("Accept", "application/json")
+      .set("profile_id", 1);
+    expect(res).to.have.status(200);
+    expect(res.body).to.be.an("array");
+    expect(res.body)
+      .excludingEvery(["createdAt", "updatedAt", "balance"])
+      .to.deep.equal([
+        {
+          id: 4,
+          firstName: "Ash",
+          lastName: "Kethcum",
+          profession: "Pokemon master",
+          type: "client",
+        },
+        {
+          id: 2,
+          firstName: "Mr",
+          lastName: "Robot",
+          profession: "Hacker",
+          type: "client",
+        },
+      ]);
+  });
+});
