@@ -17,6 +17,7 @@ Things I would have implemented if I had more time:
 - I would have focused more on refactoring, separating the logic from the express routers, and creating a data access layer
 - I would have created some unit tests; I'm only testing end-to-end implementation.
 - Right now, when you run the testing command, it drops the database; I would have changed this, so it creates a new database for testing porpuses
+- more testing for edge cases!
 
 ## Data Models
 
